@@ -1,0 +1,21 @@
+fullnameOverride: auth-service
+
+container:
+  image: jen1g/auth
+  tag: v3
+  port: 8080
+
+replicaCount: 1
+
+postgresql:
+  auth:
+    postgresPassword: "12345"
+    username: "pguser"
+    password: "12345"
+    database: "auth_service_db"
+  persistence:
+    enabled: true
+    storageClass: "standard" # kubectl get sc
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi

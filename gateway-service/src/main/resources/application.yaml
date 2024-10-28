@@ -1,0 +1,101 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service-login
+          uri: http://localhost:8083  #or otus-auth-service.otus.svc.cluster.local
+          predicates:
+            - Path=/login
+
+        - id: auth-service-refresh
+          uri: http://localhost:8083  #or otus-auth-service.otus.svc.cluster.local
+          predicates:
+             - Path=/refresh
+
+        - id: user-service-open
+          uri: http://localhost:9099 #or otus-user-service.otus.svc.cluster.local
+          predicates:
+            - Path=/user/register
+
+        - id: user-service-secure
+          uri: http://localhost:9099 #or otus-user-service.otus.svc.cluster.local
+          predicates:
+            - Path=/user/**
+          filters:
+            - CheckAuthToken  # Удалили RemoveRequestHeader
+
+        - id: billing-service
+          uri: http://localhost:8082 #or kubernetes service billing-service.otus.svc.cluster.local
+          predicates:
+            - Path=/billing/**
+          filters:
+            - CheckAuthToken
+
+        - id: order-service
+          uri: http://localhost:8081 #or kubernetes service order-service.otus.svc.cluster.local
+          predicates:
+            - Path=/orders
+          filters:
+            - CheckAuthToken
+
+        - id: notification-service
+          uri: http://localhost:8090 #or kubernetes service order-service.otus.svc.cluster.local
+          predicates:
+            - Path=/notifications
+          filters:
+            - CheckAuthToken
+
+        - id: notification-service-2
+          uri: http://localhost:8090 #or kubernetes service order-service.otus.svc.cluster.local
+          predicates:
+            - Path=/notifications
+          filters:
+            - CheckAuthToken
+
+        - id: warehouse-products-service
+          uri: http://localhost:8085 #or kubernetes service warehouse-service.otus.svc.cluster.local
+          predicates:
+            - Path=/warehouse/products
+
+        - id: timeslot-available-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/timeslots/available
+
+        - id: timeslot-avaliable-service-2
+          uri: http://localhost:8086 #or kubernetes service warehouse-service.otus.svc.cluster.local
+          predicates:
+            - Path=/delivery/available-timeslots
+jwt:
+  secret: bXktc3RyaW5n
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+
+management:
+  server:
+    port: 7084
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+  health:
+    db:
+      enabled: true
+  metrics:
+    distribution:
+      slo:
+        http:
+          server:
+            requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
+  prometheus:
+    metrics:
+      export:
+        enabled: true

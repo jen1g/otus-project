@@ -1,0 +1,22 @@
+fullnameOverride: user-service
+
+container:
+  image: jen1g/user
+  tag: v4
+  port: 9099
+
+replicaCount: 1
+
+postgresql:
+  auth:
+    postgresPassword: "12345"
+    username: "pguser"
+    password: "12345"
+    database: "user_service_db"
+  persistence:
+    enabled: true
+    storageClass: "standard" # kubectl get sc
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+

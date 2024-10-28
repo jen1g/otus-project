@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  labels:
+    app: {{ .Release.Name }}-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: billing-service
+          image: {{ .Values.container.image }}:{{ .Values.container.tag }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.container.port }}
+          env:
+            - name: SPRING_CONFIG_LOCATION
+              value: /config/application.yaml
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret-notification
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret-notification
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret-notification
+                  key: SPRING_DATASOURCE_PASSWORD
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/application.yaml
+              subPath: application.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Release.Name }}-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-service
+  labels:
+    app: {{ .Release.Name }}-service
+spec:
+  selector:
+    app: {{ .Release.Name }}
+  ports:
+    - name: metrics
+      port: 80
+      targetPort: {{ .Values.container.port }}
+  type: ClusterIP

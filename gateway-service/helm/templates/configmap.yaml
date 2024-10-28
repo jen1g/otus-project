@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app: {{ .Release.Name }}
+data:
+  application.yaml: |
+    spring:
+      cloud:
+        gateway:
+          routes:
+            - id: auth-service-login
+              uri: http://{{ .Values.gateway.serviceNameAuth }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/login
+
+            - id: auth-service-refresh
+              uri: http://{{ .Values.gateway.serviceNameAuth }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/refresh
+
+            - id: user-service-open
+              uri: http://{{ .Values.gateway.serviceNameUser }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/user/register
+
+            - id: user-service-secure
+              uri: http://{{ .Values.gateway.serviceNameUser }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/user/**
+              filters:
+                - CheckAuthToken
+
+            - id: billing-service
+              uri: http://{{ .Values.gateway.serviceNameBilling }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/billing/**
+              filters:
+                - CheckAuthToken
+
+            - id: order-service
+              uri: http://{{ .Values.gateway.serviceNameOrder }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/orders
+              filters:
+                - CheckAuthToken
+
+            - id: notification-service
+              uri: http://{{ .Values.gateway.serviceNameNotification }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/notifications
+              filters:
+                - CheckAuthToken
+
+            - id: notification-service-2
+              uri: http://{{ .Values.gateway.serviceNameNotification }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/notifications
+              filters:
+                - CheckAuthToken
+
+            - id: warehouse-products-service
+              uri: http://{{ .Values.gateway.serviceNameWarehouse }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/warehouse/products
+
+            - id: timeslot-available-service
+              uri: http://{{ .Values.gateway.serviceNameDelivery }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/timeslots/available
+
+            - id: timeslot-avaliable-service-2
+              uri: http://{{ .Values.gateway.serviceNameDelivery }}.{{ .Release.Namespace }}.svc.cluster.local
+              predicates:
+                - Path=/delivery/available-timeslots
+
+    jwt:
+      secret: ${JWT_SECRET}
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: '*'
+      endpoint:
+        health:
+          probes:
+            enabled: true
+          show-details: always
+
+      health:
+        db:
+          enabled: true
+      metrics:
+        distribution:
+          slo:
+            http:
+              server:
+                requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
+      prometheus:
+        metrics:
+          export:
+            enabled: true

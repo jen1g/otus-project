@@ -1,0 +1,21 @@
+fullnameOverride: order-service
+
+container:
+  image: jen1g/order
+  tag: v9
+  port: 8080
+
+replicaCount: 1
+
+postgresql:
+  auth:
+    postgresPassword: "12345"
+    username: "pguser"
+    password: "12345"
+    database: "order_service_db"
+  persistence:
+    enabled: true
+    storageClass: "standard" # kubectl get sc
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi

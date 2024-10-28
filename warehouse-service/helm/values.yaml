@@ -1,0 +1,18 @@
+container:
+  image: jen1g/warehouse
+  tag: v5
+  port: 8080
+
+
+postgresql:
+  auth:
+    postgresPassword: "12345"
+    username: "pguser"
+    password: "12345"
+    database: "warehouse_service_db"
+  persistence:
+    enabled: true
+    storageClass: "standard" # kubectl get sc
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi

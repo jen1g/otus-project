@@ -1,0 +1,19 @@
+replicaCount: 1
+
+container:
+  image: jen1g/notification
+  tag: v5
+  port: 8090
+
+postgresql:
+  auth:
+    postgresPassword: "12345"
+    username: "pguser"
+    password: "12345"
+    database: "notification_service_db"
+  persistence:
+    enabled: true
+    storageClass: "standard" # kubectl get sc
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi

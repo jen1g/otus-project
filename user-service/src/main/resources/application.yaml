@@ -1,0 +1,44 @@
+server:
+  port: 9099
+spring:
+  application:
+    name: user-service
+  datasource:
+    password: postgres
+    url: jdbc:postgresql://localhost:5432/user_service_db
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+billing:
+  service:
+    url: http://localhost:8082
+
+
+management:
+  server:
+    port: 7088
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+  health:
+    db:
+      enabled: true
+  metrics:
+    distribution:
+      slo:
+        http:
+          server:
+            requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
+  prometheus:
+    metrics:
+      export:
+        enabled: true

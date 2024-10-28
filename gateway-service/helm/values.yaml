@@ -1,0 +1,17 @@
+fullnameOverride: gateway-service
+
+container:
+  image: jen1g/gateway
+  tag: v3
+  port: 8080
+
+replicaCount: 1
+
+gateway:
+  serviceNameAuth: auth-app-service
+  serviceNameUser: user-app-service
+  serviceNameBilling: billing-app-service
+  serviceNameOrder: order-app-service
+  serviceNameNotification: notification-app-service
+  serviceNameWarehouse: warehouse-app-service
+  serviceNameDelivery: delivery-app-service
